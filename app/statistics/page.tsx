@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import AppLayout from "../layouts/AppLayout";
 import StatCard from "@/components/StatCard";
 import StatisticsCharts from "@/components/StatisticsCharts";

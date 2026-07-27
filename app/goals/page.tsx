@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import AppLayout from "../layouts/AppLayout";
 import GoalsStats from "@/components/GoalsStats";
 import { supabase } from "@/lib/supabase";

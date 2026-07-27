@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import AppLayout from "@/app/layouts/AppLayout";
 import SessionModal from "@/components/SessionModal";
 import SessionsTable from "@/components/SessionsTable";

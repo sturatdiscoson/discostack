@@ -1,4 +1,6 @@
-﻿import Link from "next/link";
+﻿export const dynamic = "force-dynamic";
+
+import Link from "next/link";
 import AppLayout from "../layouts/AppLayout";
 import DashboardStats from "@/components/DashboardStats";
 import SessionsTable from "@/components/SessionsTable";

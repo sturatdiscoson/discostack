@@ -45,10 +45,6 @@ export default function SessionModal() {
       setTimeout(() => {
         setOpen(false);
         router.refresh();
-
-        if (typeof window !== "undefined") {
-          window.location.reload();
-        }
       }, 800);
     } catch (err) {
       const message =
