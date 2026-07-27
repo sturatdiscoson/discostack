@@ -77,9 +77,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           })}
         </nav>
 
-        <div className="mt-auto rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm text-zinc-300">
-          Keep your bankroll sharp on the go.
-        </div>
       </aside>
     </>
   );
