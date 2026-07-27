@@ -25,31 +25,26 @@ export default function EditSessionModal({ session }: Props) {
     setSuccess("");
 
     try {
-      const { data: newSession, error: insertError } = await supabase
+      const profit = data.cash_out - data.buy_in;
+
+      const { error: updateError } = await supabase
         .from("sessions")
-        .insert({
+        .update({
           played_on: data.played_on,
           venue: data.venue,
           stakes: data.stakes,
           buy_in: data.buy_in,
           cash_out: data.cash_out,
+          profit,
           hours: data.hours,
           notes: data.notes,
         })
+        .eq("id", session.id)
         .select()
         .single();
 
-      if (insertError) {
-        throw insertError;
-      }
-
-      const { error: deleteError } = await supabase
-        .from("sessions")
-        .delete()
-        .eq("id", session.id);
-
-      if (deleteError) {
-        throw deleteError;
+      if (updateError) {
+        throw updateError;
       }
 
       setSuccess("Session updated successfully.");
