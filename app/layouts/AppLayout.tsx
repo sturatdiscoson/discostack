@@ -10,7 +10,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <Sidebar />
 
       <main className="flex-1 p-8">
-        {children}
+        <div className="mx-auto w-full max-w-7xl">{children}</div>
       </main>
     </div>
   );

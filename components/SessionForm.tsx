@@ -36,6 +36,15 @@ export default function SessionForm({
     }));
   }
 
+  function parseNumericValue(value: string) {
+    if (value === "") {
+      return 0;
+    }
+
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
   return (
     <form
       className="space-y-5"
@@ -101,7 +110,7 @@ export default function SessionForm({
             type="number"
             step="0.25"
             value={form.hours}
-            onChange={(e) => update("hours", Number(e.target.value))}
+            onChange={(e) => update("hours", parseNumericValue(e.target.value))}
             className="w-full rounded-lg bg-zinc-800 p-3"
           />
         </div>
@@ -114,7 +123,7 @@ export default function SessionForm({
           <input
             type="number"
             value={form.buy_in}
-            onChange={(e) => update("buy_in", Number(e.target.value))}
+            onChange={(e) => update("buy_in", parseNumericValue(e.target.value))}
             className="w-full rounded-lg bg-zinc-800 p-3"
           />
         </div>
@@ -127,7 +136,7 @@ export default function SessionForm({
           <input
             type="number"
             value={form.cash_out}
-            onChange={(e) => update("cash_out", Number(e.target.value))}
+            onChange={(e) => update("cash_out", parseNumericValue(e.target.value))}
             className="w-full rounded-lg bg-zinc-800 p-3"
           />
         </div>

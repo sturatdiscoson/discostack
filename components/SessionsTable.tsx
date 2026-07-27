@@ -1,5 +1,5 @@
 "use client";
-
+import EditSessionModal from "@/components/EditSessionModal";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Session } from "@/types/session";
@@ -89,9 +89,7 @@ export default function SessionsTable({ sessions }: Props) {
 
                 <td className="p-4">
                   <div className="flex justify-center gap-2">
-                    <button className="rounded bg-blue-600 px-3 py-1 text-sm hover:bg-blue-500">
-                      Edit
-                    </button>
+                    <EditSessionModal session={session} />
 
                     <button
                       onClick={() => deleteSession(session.id)}

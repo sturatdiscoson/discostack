@@ -27,13 +27,6 @@ export default function Sidebar() {
         </Link>
 
         <Link
-          href="/hands"
-          className="block rounded-lg px-4 py-3 hover:bg-zinc-800"
-        >
-          🃏 Hand Reviews
-        </Link>
-
-        <Link
           href="/statistics"
           className="block rounded-lg px-4 py-3 hover:bg-zinc-800"
         >
@@ -47,12 +40,6 @@ export default function Sidebar() {
           🎯 Goals
         </Link>
 
-        <Link
-          href="/settings"
-          className="block rounded-lg px-4 py-3 hover:bg-zinc-800"
-        >
-          ⚙️ Settings
-        </Link>
       </nav>
     </aside>
   );
