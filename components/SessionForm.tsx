@@ -1,0 +1,159 @@
+"use client";
+
+import { useState } from "react";
+import { SessionFormData } from "@/types/session";
+
+type Props = {
+  initialValues?: SessionFormData;
+  onSubmit: (data: SessionFormData) => Promise<void>;
+  submitText: string;
+};
+
+const defaultValues: SessionFormData = {
+  played_on: new Date().toISOString().split("T")[0],
+  venue: "Grosvenor",
+  stakes: "£1/2",
+  buy_in: 0,
+  cash_out: 0,
+  hours: 0,
+  notes: "",
+};
+
+export default function SessionForm({
+  initialValues = defaultValues,
+  onSubmit,
+  submitText,
+}: Props) {
+  const [form, setForm] = useState<SessionFormData>(initialValues);
+
+  function update<K extends keyof SessionFormData>(
+    key: K,
+    value: SessionFormData[K]
+  ) {
+    setForm((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  }
+
+  return (
+    <form
+      className="space-y-5"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        await onSubmit(form);
+      }}
+    >
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="mb-2 block text-sm text-zinc-400">
+            Date
+          </label>
+
+          <input
+            type="date"
+            value={form.played_on}
+            onChange={(e) => update("played_on", e.target.value)}
+            className="w-full rounded-lg bg-zinc-800 p-3"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm text-zinc-400">
+            Venue
+          </label>
+
+          <select
+            value={form.venue}
+            onChange={(e) => update("venue", e.target.value)}
+            className="w-full rounded-lg bg-zinc-800 p-3"
+          >
+            <option>Grosvenor</option>
+            <option>Mark's Game</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm text-zinc-400">
+            Stakes
+          </label>
+
+          <select
+            value={form.stakes}
+            onChange={(e) => update("stakes", e.target.value)}
+            className="w-full rounded-lg bg-zinc-800 p-3"
+          >
+            <option>£1/1</option>
+            <option>£1/2</option>
+            <option>£1/3</option>
+            <option>£2/5</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm text-zinc-400">
+            Hours Played
+          </label>
+
+          <input
+            type="number"
+            step="0.25"
+            value={form.hours}
+            onChange={(e) => update("hours", Number(e.target.value))}
+            className="w-full rounded-lg bg-zinc-800 p-3"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm text-zinc-400">
+            Buy In (£)
+          </label>
+
+          <input
+            type="number"
+            value={form.buy_in}
+            onChange={(e) => update("buy_in", Number(e.target.value))}
+            className="w-full rounded-lg bg-zinc-800 p-3"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm text-zinc-400">
+            Cash Out (£)
+          </label>
+
+          <input
+            type="number"
+            value={form.cash_out}
+            onChange={(e) => update("cash_out", Number(e.target.value))}
+            className="w-full rounded-lg bg-zinc-800 p-3"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm text-zinc-400">
+          Notes
+        </label>
+
+        <textarea
+          value={form.notes}
+          onChange={(e) => update("notes", e.target.value)}
+          className="h-32 w-full rounded-lg bg-zinc-800 p-3"
+          placeholder="Anything interesting about the session..."
+        />
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          type="submit"
+          className="rounded-lg bg-emerald-600 px-6 py-3 font-semibold hover:bg-emerald-500"
+        >
+          {submitText}
+        </button>
+      </div>
+    </form>
+  );
+}
