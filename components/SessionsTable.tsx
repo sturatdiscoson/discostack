@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
 import EditSessionModal from "@/components/EditSessionModal";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 import { Session } from "@/types/session";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 
@@ -10,35 +10,25 @@ type Props = {
 };
 
 export default function SessionsTable({ sessions }: Props) {
-  const [sessionList, setSessionList] = useState<Session[]>(sessions);
-
-  useEffect(() => {
-    setSessionList(sessions);
-  }, [sessions]);
+  const router = useRouter();
 
   async function deleteSession(id: string) {
     if (!confirm("Delete this session?")) return;
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("sessions")
       .delete()
-      .eq("id", id)
-      .select();
+      .eq("id", id);
 
     if (error) {
       alert(error.message);
       return;
     }
 
-    if (!data || data.length === 0) {
-      alert("Unable to delete session; record not found.");
-      return;
-    }
-
-    setSessionList((current) => current.filter((session) => session.id !== id));
+    router.refresh();
   }
 
-  if (sessionList.length === 0) {
+  if (sessions.length === 0) {
     return (
       <div className="rounded-xl bg-zinc-900 p-6 text-zinc-400">
         No sessions yet.

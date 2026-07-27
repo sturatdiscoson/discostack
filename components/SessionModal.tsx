@@ -15,13 +15,24 @@ export default function SessionModal() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  function getErrorMessage(err: unknown) {
+    if (err instanceof Error) return err.message;
+    if (err && typeof err === "object") {
+      const errorObject = err as Record<string, unknown>;
+      if (typeof errorObject.message === "string") return errorObject.message;
+      if (typeof errorObject.statusText === "string") return errorObject.statusText;
+      return JSON.stringify(err);
+    }
+    return "Unable to create session.";
+  }
+
   async function handleSubmit(data: SessionFormData) {
     setSaving(true);
     setError("");
     setSuccess("");
 
     try {
-      const { error } = await supabase
+      const { data: insertedData, error } = await supabase
         .from("sessions")
         .insert({
           played_on: data.played_on,
@@ -30,13 +41,16 @@ export default function SessionModal() {
           buy_in: data.buy_in,
           cash_out: data.cash_out,
           hours: data.hours,
-          notes: data.notes,
+          notes: data.notes || null,
         })
-        .select()
-        .single();
+        .select();
 
       if (error) {
         throw error;
+      }
+
+      if (!insertedData || insertedData.length === 0) {
+        throw new Error("No session was returned from the server.");
       }
 
       setSuccess("Session created successfully.");
@@ -47,8 +61,7 @@ export default function SessionModal() {
         router.refresh();
       }, 800);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Unable to create session.";
+      const message = getErrorMessage(err);
       console.error(err);
       setError(message);
       setSaving(false);

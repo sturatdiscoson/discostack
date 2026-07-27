@@ -25,6 +25,7 @@ export default function SessionForm({
   submitText,
 }: Props) {
   const [form, setForm] = useState<SessionFormData>(initialValues);
+  const [formError, setFormError] = useState("");
 
   function update<K extends keyof SessionFormData>(
     key: K,
@@ -45,11 +46,42 @@ export default function SessionForm({
     return Number.isFinite(parsed) ? parsed : 0;
   }
 
+  function validateForm() {
+    if (!form.played_on) {
+      return "Please select a date.";
+    }
+
+    if (form.buy_in < 0 || form.cash_out < 0) {
+      return "Buy in and cash out must be 0 or greater.";
+    }
+
+    if (form.hours < 0) {
+      return "Hours played must be 0 or greater.";
+    }
+
+    const maxAllowed = 1_000_000;
+    if (form.buy_in > maxAllowed || form.cash_out > maxAllowed || form.hours > maxAllowed) {
+      return "Numeric values are too large. Use smaller amounts.";
+    }
+
+    if (Number.isNaN(form.buy_in) || Number.isNaN(form.cash_out) || Number.isNaN(form.hours)) {
+      return "Enter valid numeric values for hours, buy in, and cash out.";
+    }
+
+    return "";
+  }
+
   return (
     <form
       className="space-y-5"
       onSubmit={async (e) => {
         e.preventDefault();
+        const error = validateForm();
+        if (error) {
+          setFormError(error);
+          return;
+        }
+        setFormError("");
         await onSubmit(form);
       }}
     >
@@ -154,6 +186,12 @@ export default function SessionForm({
           placeholder="Anything interesting about the session..."
         />
       </div>
+
+      {formError ? (
+        <div className="rounded-lg border border-red-500 bg-red-500/10 p-3 text-sm text-red-300">
+          {formError}
+        </div>
+      ) : null}
 
       <div className="flex justify-end">
         <button
