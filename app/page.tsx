@@ -4,7 +4,7 @@ export default function Home() {
     <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
       <div className="text-center">
         <h1 className="text-6xl font-bold text-emerald-500">
-          DISCO STACK
+          DISCOSTACKS
         </h1>
 
         <div className="mt-8 text-2xl text-zinc-300 leading-relaxed">

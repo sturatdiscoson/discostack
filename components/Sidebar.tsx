@@ -4,7 +4,7 @@ export default function Sidebar() {
   return (
     <aside className="w-64 min-h-screen bg-zinc-900 border-r border-zinc-800 p-6">
       <h1 className="text-3xl font-bold text-emerald-500">
-        DiscoStack
+        DiscoStacks
       </h1>
 
       <p className="mt-1 mb-8 text-zinc-400">

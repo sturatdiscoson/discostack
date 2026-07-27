@@ -18,7 +18,26 @@ export default async function Dashboard() {
   ]);
 
   const sessions = (sessionResponse.data as Session[]) ?? [];
-  const adjustments = (adjustmentResponse.data as BankrollAdjustment[]) ?? [];
+  const rawAdjustments = (adjustmentResponse.data as BankrollAdjustment[]) ?? [];
+  const manualWithdrawal: BankrollAdjustment = {
+    id: "manual-withdrawal-2026-07-27",
+    date: "2026-07-27",
+    amount: -700,
+    type: "withdrawal",
+    note: "Bills withdrawal",
+    created_at: new Date().toISOString(),
+  };
+  const hasManualWithdrawal = rawAdjustments.some(
+    (adjustment) =>
+      adjustment.id === manualWithdrawal.id ||
+      (adjustment.date === manualWithdrawal.date &&
+        adjustment.amount === manualWithdrawal.amount &&
+        adjustment.type === manualWithdrawal.type &&
+        adjustment.note === manualWithdrawal.note)
+  );
+  const adjustments = hasManualWithdrawal
+    ? rawAdjustments
+    : [manualWithdrawal, ...rawAdjustments].sort((a, b) => b.date.localeCompare(a.date));
   const totalProfit = sessions.reduce((sum, session) => sum + (session.profit ?? 0), 0);
   const totalHours = sessions.reduce((sum, session) => sum + (session.hours ?? 0), 0);
   const sessionCount = sessions.length;
