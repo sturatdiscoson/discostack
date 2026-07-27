@@ -15,7 +15,11 @@ export default async function GoalsPage() {
 
   const sessions = (response.data as Session[]) ?? [];
   const adjustments = (adjustmentResponse.data as BankrollAdjustment[]) ?? [];
-  const totalProfit = sessions.reduce((sum, session) => sum + (session.profit ?? 0), 0);
+  const totalProfit = sessions.reduce(
+    (sum, session) =>
+      sum + (session.profit ?? session.cash_out - session.buy_in),
+    0
+  );
   const currentBankroll = 1500;
   const nextGoal = goals.find((goal) => totalProfit < goal) ?? goals[goals.length - 1];
   const nextGoalRemaining = Math.max(nextGoal - totalProfit, 0);

@@ -20,26 +20,34 @@ export default async function StatisticsPage() {
 
   const sessions = (response.data as Session[]) ?? [];
   const sessionCount = sessions.length;
-  const totalProfit = sessions.reduce((sum, session) => sum + (session.profit ?? 0), 0);
+  const totalProfit = sessions.reduce(
+    (sum, session) =>
+      sum + (session.profit ?? session.cash_out - session.buy_in),
+    0
+  );
   const totalHours = sessions.reduce((sum, session) => sum + (session.hours ?? 0), 0);
   const averageProfit = sessionCount > 0 ? totalProfit / sessionCount : 0;
   const averageHourly = totalHours > 0 ? totalProfit / totalHours : 0;
-  const positiveCount = sessions.filter((session) => session.profit >= 0).length;
+
+  const getSessionProfit = (session: Session) =>
+    session.profit ?? session.cash_out - session.buy_in;
+
+  const positiveCount = sessions.filter((session) => getSessionProfit(session) >= 0).length;
   const negativeCount = sessionCount - positiveCount;
 
   const bestSession = sessions.reduce<Session | null>((best, session) => {
-    if (best === null || session.profit > best.profit) return session;
+    if (best === null || getSessionProfit(session) > getSessionProfit(best)) return session;
     return best;
   }, null);
 
   const worstSession = sessions.reduce<Session | null>((worst, session) => {
-    if (worst === null || session.profit < worst.profit) return session;
+    if (worst === null || getSessionProfit(session) < getSessionProfit(worst)) return session;
     return worst;
   }, null);
 
   const monthlyProfit = sessions.reduce<Record<string, number>>((acc, session) => {
     const label = getMonthLabel(session.played_on);
-    acc[label] = (acc[label] ?? 0) + (session.profit ?? 0);
+    acc[label] = (acc[label] ?? 0) + getSessionProfit(session);
     return acc;
   }, {});
 
@@ -47,7 +55,7 @@ export default async function StatisticsPage() {
   const monthlyValues = monthlyLabels.map((label) => monthlyProfit[label]);
   const monthlyMax = Math.max(...monthlyValues, 0);
   const monthlyMin = Math.min(...monthlyValues, 0);
-  const profitTrendValues = sessions.map((session) => session.profit ?? 0);
+  const profitTrendValues = sessions.map((session) => getSessionProfit(session));
 
   return (
     <AppLayout>
@@ -117,7 +125,7 @@ export default async function StatisticsPage() {
                 <div className="mt-3 space-y-2 text-white">
                   <p className="font-semibold">{getMonthLabel(bestSession.played_on)}</p>
                   <p>{bestSession.venue}</p>
-                  <p className="text-emerald-400">{formatCurrency(bestSession.profit)}</p>
+                  <p className="text-emerald-400">{formatCurrency(getSessionProfit(bestSession))}</p>
                 </div>
               ) : (
                 <p className="mt-3 text-zinc-400">No sessions yet</p>
@@ -129,7 +137,7 @@ export default async function StatisticsPage() {
                 <div className="mt-3 space-y-2 text-white">
                   <p className="font-semibold">{getMonthLabel(worstSession.played_on)}</p>
                   <p>{worstSession.venue}</p>
-                  <p className="text-rose-400">{formatCurrency(worstSession.profit)}</p>
+                  <p className="text-rose-400">{formatCurrency(getSessionProfit(worstSession))}</p>
                 </div>
               ) : (
                 <p className="mt-3 text-zinc-400">No sessions yet</p>

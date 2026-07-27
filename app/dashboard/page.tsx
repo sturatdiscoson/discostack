@@ -38,7 +38,11 @@ export default async function Dashboard() {
   const adjustments = hasManualWithdrawal
     ? rawAdjustments
     : [manualWithdrawal, ...rawAdjustments].sort((a, b) => b.date.localeCompare(a.date));
-  const totalProfit = sessions.reduce((sum, session) => sum + (session.profit ?? 0), 0);
+  const totalProfit = sessions.reduce(
+    (sum, session) =>
+      sum + (session.profit ?? session.cash_out - session.buy_in),
+    0
+  );
   const totalHours = sessions.reduce((sum, session) => sum + (session.hours ?? 0), 0);
   const sessionCount = sessions.length;
   const adjustmentSum = adjustments.reduce((sum, adjustment) => sum + (adjustment.amount ?? 0), 0);

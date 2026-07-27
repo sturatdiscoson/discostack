@@ -11,7 +11,7 @@ export type Session = {
 
   cash_out: number;
 
-  profit: number;
+  profit?: number | null;
 
   hours: number;
 

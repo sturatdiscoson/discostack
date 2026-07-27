@@ -15,13 +15,19 @@ export default function SessionsTable({ sessions }: Props) {
   async function deleteSession(id: string) {
     if (!confirm("Delete this session?")) return;
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("sessions")
       .delete()
-      .eq("id", id);
+      .eq("id", id)
+      .select();
 
     if (error) {
       alert(error.message);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      alert("Unable to delete session; record not found.");
       return;
     }
 

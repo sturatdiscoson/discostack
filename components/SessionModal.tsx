@@ -21,8 +21,6 @@ export default function SessionModal() {
     setSuccess("");
 
     try {
-      const profit = data.cash_out - data.buy_in;
-
       const { error } = await supabase
         .from("sessions")
         .insert({
@@ -31,7 +29,6 @@ export default function SessionModal() {
           stakes: data.stakes,
           buy_in: data.buy_in,
           cash_out: data.cash_out,
-          profit,
           hours: data.hours,
           notes: data.notes,
         })

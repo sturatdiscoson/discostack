@@ -25,9 +25,7 @@ export default function EditSessionModal({ session }: Props) {
     setSuccess("");
 
     try {
-      const profit = data.cash_out - data.buy_in;
-
-      const { error: updateError } = await supabase
+      const { data: updatedData, error: updateError } = await supabase
         .from("sessions")
         .update({
           played_on: data.played_on,
@@ -35,7 +33,6 @@ export default function EditSessionModal({ session }: Props) {
           stakes: data.stakes,
           buy_in: data.buy_in,
           cash_out: data.cash_out,
-          profit,
           hours: data.hours,
           notes: data.notes,
         })
@@ -45,6 +42,10 @@ export default function EditSessionModal({ session }: Props) {
 
       if (updateError) {
         throw updateError;
+      }
+
+      if (!updatedData) {
+        throw new Error("No updated session returned from the server.");
       }
 
       setSuccess("Session updated successfully.");
@@ -85,6 +86,7 @@ export default function EditSessionModal({ session }: Props) {
               </h2>
 
               <button
+                type="button"
                 onClick={() => setOpen(false)}
                 disabled={saving}
                 className="text-2xl text-zinc-400 hover:text-white disabled:opacity-40"
