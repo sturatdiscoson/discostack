@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { supabase } from "@/lib/supabase";
@@ -18,6 +18,31 @@ export default function EditSessionModal({ session }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (mounted) {
+        setIsAuthenticated(Boolean(user));
+      }
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) {
+        setIsAuthenticated(Boolean(session?.user));
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   function getErrorMessage(err: unknown) {
     if (err instanceof Error) return err.message;
@@ -30,7 +55,22 @@ export default function EditSessionModal({ session }: Props) {
     return "Unable to update session.";
   }
 
+  function getFriendlyErrorMessage(err: unknown) {
+    const message = getErrorMessage(err);
+
+    if (message.toLowerCase().includes("row-level security") || message.toLowerCase().includes("policy")) {
+      return `${message}\n\nThis usually means Supabase is blocking the write because the database policies for the sessions table do not allow your signed-in user to insert/update/delete rows.`;
+    }
+
+    return message;
+  }
+
   async function handleSubmit(data: SessionFormData) {
+    if (!isAuthenticated) {
+      setError("Please sign in before editing sessions.");
+      return;
+    }
+
     setSaving(true);
     setError("");
     setSuccess("");
@@ -84,18 +124,7 @@ export default function EditSessionModal({ session }: Props) {
       }
 
       if (!updatedRow) {
-        // Some Supabase configurations (RLS or policies) may not return the
-        // updated row. If there was no error, treat this as a successful update
-        // and refresh the UI.
-        setSuccess("Session updated successfully.");
-        setSaving(false);
-
-        setTimeout(() => {
-          setOpen(false);
-          router.refresh();
-        }, 800);
-
-        return;
+        throw new Error("The update did not return a row, so the change may not have been applied. Please check your Supabase policies for the sessions table.");
       }
 
       setSuccess("Session updated successfully.");
@@ -106,7 +135,7 @@ export default function EditSessionModal({ session }: Props) {
         router.refresh();
       }, 800);
     } catch (err) {
-      const message = getErrorMessage(err);
+      const message = getFriendlyErrorMessage(err);
       console.error(err);
       setError(message);
       setSaving(false);
@@ -117,9 +146,10 @@ export default function EditSessionModal({ session }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="rounded bg-blue-600 px-3 py-1 text-sm hover:bg-blue-500"
+        disabled={!isAuthenticated}
+        className="rounded bg-blue-600 px-3 py-1 text-sm hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Edit
+        {isAuthenticated ? "Edit" : "Sign in"}
       </button>
 
       {open && (

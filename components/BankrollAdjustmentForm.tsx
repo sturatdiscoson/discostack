@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -18,7 +18,32 @@ export default function BankrollAdjustmentForm() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    let mounted = true;
+
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (mounted) {
+        setIsAuthenticated(Boolean(user));
+      }
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) {
+        setIsAuthenticated(Boolean(session?.user));
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const updateField = <K extends keyof AdjustmentForm>(key: K, value: AdjustmentForm[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -29,6 +54,12 @@ export default function BankrollAdjustmentForm() {
     setSaving(true);
     setError("");
     setSuccess("");
+
+    if (!isAuthenticated) {
+      setError("Please sign in before recording bankroll changes.");
+      setSaving(false);
+      return;
+    }
 
     try {
       const amount = Number(form.amount);
@@ -129,10 +160,10 @@ export default function BankrollAdjustmentForm() {
         <div className="flex justify-end">
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || !isAuthenticated}
             className="rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {saving ? "Saving..." : "Save adjustment"}
+            {saving ? "Saving..." : isAuthenticated ? "Save adjustment" : "Sign in to save"}
           </button>
         </div>
       </form>

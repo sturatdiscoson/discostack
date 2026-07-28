@@ -1,6 +1,7 @@
 "use client";
 import EditSessionModal from "@/components/EditSessionModal";
 import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Session } from "@/types/session";
 import { formatCurrency, formatDate } from "@/lib/formatters";
@@ -11,8 +12,37 @@ type Props = {
 
 export default function SessionsTable({ sessions }: Props) {
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (mounted) {
+        setIsAuthenticated(Boolean(user));
+      }
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) {
+        setIsAuthenticated(Boolean(session?.user));
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   async function deleteSession(id: string) {
+    if (!isAuthenticated) {
+      alert("Please sign in before deleting sessions.");
+      return;
+    }
     if (!confirm("Delete this session?")) return;
 
     const { error } = await supabase
@@ -21,7 +51,10 @@ export default function SessionsTable({ sessions }: Props) {
       .eq("id", id);
 
     if (error) {
-      alert(error.message);
+      const message = error.message.includes("row-level security") || error.message.includes("policy")
+        ? `${error.message}\n\nThis usually means your Supabase RLS policy is blocking deletes for the sessions table.`
+        : error.message;
+      alert(message);
       return;
     }
 
@@ -113,9 +146,10 @@ export default function SessionsTable({ sessions }: Props) {
                   <EditSessionModal session={session} />
                   <button
                     onClick={() => deleteSession(session.id)}
-                    className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-500"
+                    disabled={!isAuthenticated}
+                    className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Delete
+                    {isAuthenticated ? "Delete" : "Sign in"}
                   </button>
                 </div>
               </div>
@@ -180,9 +214,10 @@ export default function SessionsTable({ sessions }: Props) {
 
                       <button
                         onClick={() => deleteSession(session.id)}
-                        className="rounded bg-red-600 px-3 py-1 text-sm hover:bg-red-500"
+                        disabled={!isAuthenticated}
+                        className="rounded bg-red-600 px-3 py-1 text-sm hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        Delete
+                        {isAuthenticated ? "Delete" : "Sign in"}
                       </button>
                     </div>
                   </td>

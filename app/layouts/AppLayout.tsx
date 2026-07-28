@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
+import AuthPanel from "@/components/AuthPanel";
 
 type AppLayoutProps = {
   children: React.ReactNode;
@@ -15,7 +16,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/95 px-4 py-3 backdrop-blur md:hidden">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-zinc-800/80 bg-zinc-950/95 px-4 py-3 backdrop-blur md:hidden">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
@@ -29,7 +30,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
             DiscoStacks
           </div>
 
-          <div className="w-10" />
+          <AuthPanel />
+        </header>
+
+        <header className="hidden items-center justify-between border-b border-zinc-800/80 bg-zinc-950/95 px-6 py-3 backdrop-blur md:flex">
+          <div className="text-sm font-semibold tracking-wide text-emerald-500">
+            DiscoStacks
+          </div>
+          <AuthPanel />
         </header>
 
         <main className="flex-1 overflow-x-auto px-4 py-4 sm:px-6 lg:px-8">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import SessionForm from "@/components/SessionForm";
@@ -14,6 +14,31 @@ export default function SessionModal() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (mounted) {
+        setIsAuthenticated(Boolean(user));
+      }
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) {
+        setIsAuthenticated(Boolean(session?.user));
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   function getErrorMessage(err: unknown) {
     if (err instanceof Error) return err.message;
@@ -26,7 +51,22 @@ export default function SessionModal() {
     return "Unable to create session.";
   }
 
+  function getFriendlyErrorMessage(err: unknown) {
+    const message = getErrorMessage(err);
+
+    if (message.toLowerCase().includes("row-level security") || message.toLowerCase().includes("policy")) {
+      return `${message}\n\nThis usually means Supabase is blocking the write because the database policies for the sessions table do not allow your signed-in user to insert/update/delete rows.`;
+    }
+
+    return message;
+  }
+
   async function handleSubmit(data: SessionFormData) {
+    if (!isAuthenticated) {
+      setError("Please sign in before creating sessions.");
+      return;
+    }
+
     setSaving(true);
     setError("");
     setSuccess("");
@@ -61,7 +101,7 @@ export default function SessionModal() {
         router.refresh();
       }, 800);
     } catch (err) {
-      const message = getErrorMessage(err);
+      const message = getFriendlyErrorMessage(err);
       console.error(err);
       setError(message);
       setSaving(false);
@@ -72,9 +112,10 @@ export default function SessionModal() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="rounded-lg bg-emerald-600 px-6 py-3 font-semibold transition hover:bg-emerald-500"
+        disabled={!isAuthenticated}
+        className="rounded-lg bg-emerald-600 px-6 py-3 font-semibold transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        + New Session
+        {isAuthenticated ? "+ New Session" : "Sign in to add"}
       </button>
 
       {open && (
