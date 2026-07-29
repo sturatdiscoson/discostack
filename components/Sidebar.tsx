@@ -29,11 +29,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       <aside
         id="mobile-sidebar"
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-zinc-800 bg-zinc-900/95 p-5 shadow-2xl backdrop-blur transition-transform duration-300 ease-out md:static md:w-64 md:translate-x-0 md:border-r md:bg-zinc-900 md:p-6 md:shadow-none ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[min(18rem,calc(100vw-1rem))] flex-col border-r border-zinc-800 bg-zinc-900/95 p-4 shadow-2xl backdrop-blur transition-transform duration-300 ease-out md:static md:w-64 md:translate-x-0 md:border-r md:bg-zinc-900 md:p-6 md:shadow-none ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="mb-6 flex items-start justify-between">
+        <div className="mb-6 flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-emerald-500 sm:text-3xl">
               DiscoStacks

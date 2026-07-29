@@ -153,10 +153,10 @@ export default function EditSessionModal({ session }: Props) {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="w-full max-w-2xl rounded-xl bg-zinc-900 p-8 shadow-2xl">
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-3xl font-bold text-emerald-500">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-2 sm:items-center sm:p-4">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-zinc-900 p-4 shadow-2xl sm:rounded-xl sm:p-8">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <h2 className="text-2xl font-bold text-emerald-500 sm:text-3xl">
                 Edit Session
               </h2>
 

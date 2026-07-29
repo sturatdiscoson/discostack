@@ -8,6 +8,8 @@ import { Session } from "@/types/session";
 import { BankrollAdjustment } from "@/app/types/adjustment";
 
 const goals = [1000, 2000, 3000, 5000, 10000];
+const STARTING_BANKROLL = 1500;
+const BANKROLL_RESET_AT = new Date("2026-07-29T02:15:56.084Z");
 
 export default async function GoalsPage() {
   const [response, adjustmentResponse] = await Promise.all([
@@ -22,7 +24,13 @@ export default async function GoalsPage() {
       sum + (session.profit ?? session.cash_out - session.buy_in),
     0
   );
-  const currentBankroll = 1500;
+  const liveSessionProfit = sessions
+    .filter((session) => new Date(session.created_at) >= BANKROLL_RESET_AT)
+    .reduce((sum, session) => sum + (session.profit ?? session.cash_out - session.buy_in), 0);
+  const liveAdjustmentSum = adjustments
+    .filter((adjustment) => new Date(adjustment.created_at) >= BANKROLL_RESET_AT)
+    .reduce((sum, adjustment) => sum + (adjustment.amount ?? 0), 0);
+  const currentBankroll = STARTING_BANKROLL + liveSessionProfit + liveAdjustmentSum;
   const nextGoal = goals.find((goal) => totalProfit < goal) ?? goals[goals.length - 1];
   const nextGoalRemaining = Math.max(nextGoal - totalProfit, 0);
 

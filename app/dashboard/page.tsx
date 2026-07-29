@@ -12,6 +12,7 @@ import { Session } from "@/types/session";
 import { BankrollAdjustment } from "@/app/types/adjustment";
 
 const STARTING_BANKROLL = 1500;
+const BANKROLL_RESET_AT = new Date("2026-07-29T02:15:56.084Z");
 
 export default async function Dashboard() {
   const [sessionResponse, adjustmentResponse] = await Promise.all([
@@ -21,25 +22,7 @@ export default async function Dashboard() {
 
   const sessions = (sessionResponse.data as Session[]) ?? [];
   const rawAdjustments = (adjustmentResponse.data as BankrollAdjustment[]) ?? [];
-  const manualWithdrawal: BankrollAdjustment = {
-    id: "manual-withdrawal-2026-07-27",
-    date: "2026-07-27",
-    amount: -700,
-    type: "withdrawal",
-    note: "Bills withdrawal",
-    created_at: new Date().toISOString(),
-  };
-  const hasManualWithdrawal = rawAdjustments.some(
-    (adjustment) =>
-      adjustment.id === manualWithdrawal.id ||
-      (adjustment.date === manualWithdrawal.date &&
-        adjustment.amount === manualWithdrawal.amount &&
-        adjustment.type === manualWithdrawal.type &&
-        adjustment.note === manualWithdrawal.note)
-  );
-  const adjustments = hasManualWithdrawal
-    ? rawAdjustments
-    : [manualWithdrawal, ...rawAdjustments].sort((a, b) => b.date.localeCompare(a.date));
+  const adjustments = rawAdjustments.sort((a, b) => b.date.localeCompare(a.date));
   const totalProfit = sessions.reduce(
     (sum, session) =>
       sum + (session.profit ?? session.cash_out - session.buy_in),
@@ -47,8 +30,13 @@ export default async function Dashboard() {
   );
   const totalHours = sessions.reduce((sum, session) => sum + (session.hours ?? 0), 0);
   const sessionCount = sessions.length;
-  const adjustmentSum = adjustments.reduce((sum, adjustment) => sum + (adjustment.amount ?? 0), 0);
-  const currentBankroll = 1500;
+  const liveSessionProfit = sessions
+    .filter((session) => new Date(session.created_at) >= BANKROLL_RESET_AT)
+    .reduce((sum, session) => sum + (session.profit ?? session.cash_out - session.buy_in), 0);
+  const liveAdjustmentSum = adjustments
+    .filter((adjustment) => new Date(adjustment.created_at) >= BANKROLL_RESET_AT)
+    .reduce((sum, adjustment) => sum + (adjustment.amount ?? 0), 0);
+  const currentBankroll = STARTING_BANKROLL + liveSessionProfit + liveAdjustmentSum;
   const recentSessions = sessions.slice(0, 5);
 
   return (

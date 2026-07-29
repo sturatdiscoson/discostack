@@ -12,7 +12,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-zinc-950 text-white">
+    <div className="flex min-h-screen overflow-x-hidden bg-zinc-950 text-white">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -40,7 +40,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <AuthPanel />
         </header>
 
-        <main className="flex-1 overflow-x-auto px-4 py-4 sm:px-6 lg:px-8">
+        <main className="flex-1 overflow-x-hidden px-4 py-4 sm:px-6 lg:px-8">
           <div className="mx-auto w-full max-w-7xl">{children}</div>
         </main>
       </div>
