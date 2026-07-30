@@ -13,7 +13,11 @@ const defaultValues = {
 
 type AdjustmentForm = typeof defaultValues;
 
-export default function BankrollAdjustmentForm() {
+type BankrollAdjustmentFormProps = {
+  onSaved?: () => void;
+};
+
+export default function BankrollAdjustmentForm({ onSaved }: BankrollAdjustmentFormProps) {
   const [form, setForm] = useState<AdjustmentForm>(defaultValues);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -81,6 +85,7 @@ export default function BankrollAdjustmentForm() {
       setSuccess("Adjustment saved.");
       setForm(defaultValues);
       setSaving(false);
+      onSaved?.();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to save adjustment.");
