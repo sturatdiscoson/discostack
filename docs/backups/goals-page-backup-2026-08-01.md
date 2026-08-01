@@ -1,3 +1,8 @@
+# Goals Page Backup - 2026-08-01
+
+This is the backed up version of the current goals page before pruning the bankroll ladder.
+
+```tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -168,3 +173,4 @@ export default function GoalsPage() {
     </AppLayout>
   );
 }
+```
