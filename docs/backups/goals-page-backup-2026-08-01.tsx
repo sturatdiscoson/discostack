@@ -8,7 +8,7 @@ import { formatCurrency } from "@/lib/formatters";
 import { Session } from "@/types/session";
 import { BankrollAdjustment } from "@/app/types/adjustment";
 
-const bankrollGoals = [2000, 3000, 5000, 7500, 10000];
+const bankrollGoals = [2000, 2500, 3000, 4000, 5000, 7500, 10000];
 const STARTING_BANKROLL = 1500;
 const BANKROLL_RESET_AT = new Date("2026-07-29T02:15:56.084Z");
 
